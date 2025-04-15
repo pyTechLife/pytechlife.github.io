@@ -400,10 +400,10 @@
                 </div>
             
                 <div class="control-section" style="flex-grow: 1; display: flex; flex-direction: column;">
-                    <div class="section-title"><i class="fas fa-list"></i> لیست نقاط</div>
+                    <div class="section-title"><i class="fas fa-list"></i> لیست مشتريان</div>
                     <div id="point-list-container">
                         <div id="point-list-header">
-                            <span>نقاط ثبت شده</span>
+                            <span>مشتريان ثبت شده</span>
                             <button id="clear-all-btn" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i> حذف همه
                             </button>
@@ -416,7 +416,7 @@
                     <button id="export-btn" class="btn btn-primary">
                         <i class="fas fa-download"></i> ذخیره اطلاعات (CSV)
                     </button>
-                    <div id="status">تعداد نقاط: 0</div>
+                    <div id="status">تعداد مشتري: 0</div>
                 </div>
             </div>
         </div>
@@ -712,7 +712,7 @@
 
         // حذف همه نقاط
         document.getElementById('clear-all-btn').addEventListener('click', function() {
-            if (points.length === 0 || confirm('آیا از حذف تمام نقاط اطمینان دارید؟')) {
+            if (points.length === 0 || confirm('آیا از حذف تمام مشتريان اطمینان دارید؟')) {
                 points = [];
                 vectorSource.clear();
                 heatmapSource.clear();
@@ -730,7 +730,7 @@
             const coordinate = evt.coordinate;
             const lonLat = ol.proj.toLonLat(coordinate);
             
-            const pointName = prompt('نام نقطه را وارد کنید:', `نقطه ${points.length + 1}`);
+            const pointName = prompt('نام مشتري را وارد کنید:', `نقطه ${points.length + 1}`);
             if (!pointName) return;
             
             // ذخیره نقطه
@@ -795,7 +795,7 @@
             if (points.length === 0) {
                 const emptyState = document.createElement('div');
                 emptyState.className = 'empty-state';
-                emptyState.textContent = 'هنوز نقطه‌ای اضافه نشده است';
+                emptyState.textContent = 'هنوز مشتري اضافه نشده است';
                 listElement.appendChild(emptyState);
                 return;
             }
@@ -847,7 +847,7 @@
 
         // حذف نقطه
         window.removePoint = function(pointId) {
-            if (!confirm('آیا از حذف این نقطه اطمینان دارید؟')) return;
+            if (!confirm('آیا از حذف این مشتري اطمینان دارید؟')) return;
             
             // حذف از آرایه
             points = points.filter(p => p.id !== pointId);
