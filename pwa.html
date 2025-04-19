@@ -561,44 +561,50 @@
             }, 3000);
         }
 
-        // PWA Installation
-        let deferredPrompt;
-        const installContainer = document.getElementById('install-container');
-        const installButton = document.getElementById('install-button');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installContainer.style.display = 'flex';
+  // ثبت Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('ServiceWorker با موفقیت ثبت شد');
+        })
+        .catch(err => {
+          console.log('خطا در ثبت ServiceWorker:', err);
         });
+    });
+  }
 
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installContainer.style.display = 'none';
-                }
-                deferredPrompt = null;
-            }
-        });
+  // مدیریت نصب PWA
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    const installBtn = document.createElement('button');
+    installBtn.textContent = 'نصب اپلیکیشن';
+    installBtn.style.position = 'fixed';
+    installBtn.style.bottom = '20px';
+    installBtn.style.left = '50%';
+    installBtn.style.transform = 'translateX(-50%)';
+    installBtn.style.zIndex = '10000';
+    installBtn.style.padding = '10px 20px';
+    installBtn.style.background = '#4CAF50';
+    installBtn.style.color = 'white';
+    installBtn.style.border = 'none';
+    installBtn.style.borderRadius = '5px';
+    
+    document.body.appendChild(installBtn);
+    
+    installBtn.addEventListener('click', () => {
+      deferredPrompt.prompt();
+      installBtn.style.display = 'none';
+    });
+  });
 
-        window.addEventListener('appinstalled', () => {
-            installContainer.style.display = 'none';
-            deferredPrompt = null;
-            showToast('اپلیکیشن با موفقیت نصب شد!');
-        });
+  window.addEventListener('appinstalled', () => {
+    console.log('اپلیکیشن با موفقیت نصب شد');
+  });
 
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful');
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
     </script>
     
 </body>
