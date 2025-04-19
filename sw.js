@@ -2,6 +2,7 @@ const CACHE_NAME = 'map-app-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './pwa.html',
   './manifest.webmanifest',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
