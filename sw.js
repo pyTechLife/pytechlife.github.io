@@ -1,12 +1,17 @@
-const CACHE_NAME = 'map-app-v2';
+const CACHE_NAME = 'map-app-v3';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
   'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js',
   'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
+
+// بقیه کد بدون تغییر
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
