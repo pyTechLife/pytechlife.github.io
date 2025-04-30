@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت | شرکت پخش مویرگی</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+    <style>
+         :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --success-color: #4ad66d;
+            --warning-color: #f8961e;
+            --danger-color: #f94144;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --border-radius: 14px;
+        }
+        
+        /* افزایش فاصله بین ردیف‌ها */
+        .row {
+            margin-bottom: 1.25rem; /* افزایش فاصله عمودی بین ردیف‌ها */
+        }
+        
+        /* افزایش فاصله بین کارت‌ها در هر ردیف */
+        [class^="col-"] {
+            padding-right: 1.25rem;
+            padding-left: 1.25rem;
+            margin-bottom: 1rem; /* افزایش فاصله پایینی */
+        }
+        
+        /* افزایش فاصله داخلی کارت‌ها */
+        .dashboard-card {
+            margin-bottom: 1.25rem; /* افزایش فاصله پایینی کارت‌ها */
+        }
+        
+        /* افزایش فاصله بین کارت‌های برند */
+        .brand-card {
+            margin-bottom: 2rem;
+        }
+        
+        /* بقیه استایل‌ها مانند قبل */
+        body {
+            font-family: 'Vazir', 'Segoe UI', Tahoma, sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .top-navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+            padding: 0.75rem 1rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .dashboard-card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+
+
+
+
+
+
+      
+        /* بهبود اعلان‌ها */
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: 0.65rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dropdown-notifications {
+            width: 320px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .dropdown-notifications .dropdown-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+        
+        .dropdown-notifications .dropdown-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        /* بهبود تب‌های زمانی */
+        .time-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .time-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .time-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+            font-weight: 600;
+        }
+        
+        /* بهبود نمودارها */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+        
+        /* بهبود مشتریان غیرفعال */
+        .inactive-badge {
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        /* بهبود کارت برندها */
+        .brand-card {
+            position: relative;
+            overflow: hidden;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+        
+        .brand-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .brand-logo {
+            height: 32px;
+            object-fit: contain;
+            margin-bottom: 0.75rem;
+        }
+        
+        .brand-progress {
+            height: 6px;
+            border-radius: 3px;
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        /* بهبود نقشه */
+        #visitorMap {
+            height: 320px;
+            border-radius: var(--border-radius);
+            z-index: 1;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* بهبود کارت اقلام تاکیدی */
+        .priority-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background-color: rgba(67, 97, 238, 0.03);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        .priority-item:hover {
+            background-color: rgba(67, 97, 238, 0.08);
+            transform: translateX(5px);
+        }
+        
+        .priority-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .priority-item h6 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .priority-item small {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        
+        /* بهبود تایپوگرافی */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* بهبود دکمه‌ها */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+        }
+        
+        .btn-sm {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d8;
+            border-color: #3a56d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+        
+        /* بهبود جداول */
+        .table {
+            --bs-table-bg: transparent;
+        }
+        
+        .table thead th {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            border-bottom-width: 1px;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+        
+        /* بهبود لیست‌ها */
+        .list-group-item {
+            border-radius: 10px !important;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: var(--transition);
+        }
+        
+        .list-group-item:hover {
+            border-color: rgba(67, 97, 238, 0.2);
+            transform: translateX(5px);
+        }
+        
+        /* انیمیشن‌ها */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* واکنش‌گرایی */
+        @media (max-width: 992px) {
+            .chart-container {
+                height: 240px;
+            }
+            
+            .brand-card {
+                height: 120px;
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 1.25rem;
+            }
+            
+            .time-tabs {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            #visitorMap {
+                height: 280px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .card-body {
+                padding: 1.25rem;
+            }
+            
+            .chart-container {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- نوار بالایی بهبود یافته -->
+    <nav class="navbar top-navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-truck-fast me-2"></i>پنل مدیریت پخش مویرگی
+            </a>
+            
+            <div class="d-flex align-items-center">
+                <!-- اعلان‌های بهبود یافته -->
+                <div class="dropdown me-3">
+                    <a href="#" class="position-relative text-white" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell fs-5"></i>
+                        <span class="notification-badge badge bg-danger rounded-circle">3</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-notifications">
+                        <li class="px-3 py-2 bg-light border-bottom">
+                            <h6 class="mb-0 text-dark fw-bold">اعلان‌ها (3)</h6>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="me-3 bg-success bg-opacity-10 rounded-circle p-2">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <div class="small fw-bold">سفارش جدید #1254 ثبت شد</div>
+                                    <span class="text-muted small">2 دقیقه پیش</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="me-3 bg-warning bg-opacity-10 rounded-circle p-2">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                </div>
+                                <div>
+                                    <div class="small fw-bold">مشتری غیرفعال شناسایی شد</div>
+                                    <span class="text-muted small">1 ساعت پیش</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="me-3 bg-primary bg-opacity-10 rounded-circle p-2">
+                                    <i class="fas fa-box text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="small fw-bold">موجودی محصول رو به اتمام است</div>
+                                    <span class="text-muted small">5 ساعت پیش</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-center py-2 bg-light text-primary fw-bold" href="#">
+                                مشاهده همه اعلان‌ها
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- پروفایل کاربر بهبود یافته -->
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <img src="https://ui-avatars.com/api/?name=وزیر+بازرگانی&background=random" class="user-avatar me-2">
+                        <span class="d-none d-lg-inline fw-medium">وزیر بازرگانی</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: var(--border-radius);">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>پروفایل کاربری</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>تنظیمات</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>اعلان‌ها</a></li>
+                        <li><hr class="dropdown-divider my-2"></li>
+                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>خروج از سیستم</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- محتوای اصلی بهبود یافته -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- کارت‌های آماری بهبود یافته -->
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-title mb-0 text-muted fw-medium">فروش امروز</h6>
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                                <i class="fas fa-shopping-bag text-primary"></i>
+                            </div>
+                        </div>
+                        <h3 class="mb-2 fw-bold">۱۲,۴۵۰,۰۰۰ <small class="text-success fs-6 fw-medium">تومان</small></h3>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">نسبت به دیروز</span>
+                            <span class="badge bg-success bg-opacity-10 text-success fw-medium">
+                                <i class="fas fa-arrow-up me-1"></i> ۸.۵٪
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-title mb-0 text-muted fw-medium">مشتریان امروز</h6>
+                            <div class="bg-success bg-opacity-10 rounded-circle p-2">
+                                <i class="fas fa-users text-success"></i>
+                            </div>
+                        </div>
+                        <h3 class="mb-2 fw-bold">۴۲ <small class="text-primary fs-6 fw-medium">مشتری</small></h3>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">نسبت به دیروز</span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">
+                                <i class="fas fa-arrow-down me-1"></i> ۲.۳٪
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-title mb-0 text-muted fw-medium">فاکتورهای امروز</h6>
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-2">
+                                <i class="fas fa-file-invoice text-warning"></i>
+                            </div>
+                        </div>
+                        <h3 class="mb-2 fw-bold">۵۷ <small class="text-warning fs-6 fw-medium">فاکتور</small></h3>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">نسبت به دیروز</span>
+                            <span class="badge bg-success bg-opacity-10 text-success fw-medium">
+                                <i class="fas fa-arrow-up me-1"></i> ۱۲.۱٪
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-title mb-0 text-muted fw-medium">میانگین سبد خرید</h6>
+                            <div class="bg-info bg-opacity-10 rounded-circle p-2">
+                                <i class="fas fa-shopping-cart text-info"></i>
+                            </div>
+                        </div>
+                        <h3 class="mb-2 fw-bold">۲۱۸,۴۰۰ <small class="text-info fs-6 fw-medium">تومان</small></h3>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">نسبت به دیروز</span>
+                            <span class="badge bg-success bg-opacity-10 text-success fw-medium">
+                                <i class="fas fa-arrow-up me-1"></i> ۳.۷٪
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- نمودار فروش بهبود یافته -->
+            <div class="col-lg-8">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">نمودار فروش ماه جاری</h5>
+                        <ul class="nav time-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">روزانه</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">هفتگی</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">ماهانه</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="me-2" style="width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 2px;"></div>
+                                <small class="fw-medium">فروش واقعی</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2" style="width: 12px; height: 12px; background-color: var(--accent-color); border-radius: 2px;"></div>
+                                <small class="fw-medium">هدف فروش</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2" style="width: 12px; height: 12px; background-color: var(--success-color); border-radius: 2px;"></div>
+                                <small class="fw-medium">پیش‌بینی</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- اقلام تاکیدی بهبود یافته -->
+            <div class="col-lg-4">
+                <div class="dashboard-card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">اقلام تاکیدی این هفته</h5>
+                        <i class="fas fa-bullseye text-danger"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="priority-item">
+                            <div class="priority-badge" style="background-color: rgba(244, 63, 94, 0.1); color: var(--danger-color);">۱</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">روغن مایع گیاهی</h6>
+                                <small class="text-muted">هدف فروش: ۱۵۰۰ عدد</small>
+                            </div>
+                            <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">فوری</span>
+                        </div>
+                        
+                        <div class="priority-item">
+                            <div class="priority-badge" style="background-color: rgba(255, 163, 25, 0.1); color: var(--warning-color);">۲</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">چای ایرانی ممتاز</h6>
+                                <small class="text-muted">هدف فروش: ۸۰۰ بسته</small>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-10 text-warning fw-medium">مهم</span>
+                        </div>
+                        
+                        <div class="priority-item">
+                            <div class="priority-badge" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary-color);">۳</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">قند کله ممتاز</h6>
+                                <small class="text-muted">هدف فروش: ۱۲۰۰ کیلو</small>
+                            </div>
+                        </div>
+                        
+                        <div class="priority-item">
+                            <div class="priority-badge" style="background-color: rgba(58, 176, 137, 0.1); color: var(--success-color);">۴</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">برنج ایرانی درجه یک</h6>
+                                <small class="text-muted">هدف فروش: ۵۰۰ کیسه</small>
+                            </div>
+                        </div>
+                        
+                        <div class="priority-item">
+                            <div class="priority-badge" style="background-color: rgba(151, 117, 250, 0.1); color: #9775fa;">۵</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">ماکارونی ساقه طلایی</h6>
+                                <small class="text-muted">هدف فروش: ۷۰۰ بسته</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- بهترین مشتریان بهبود یافته -->
+            <div class="col-lg-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">بهترین مشتریان</h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary active fw-medium">ریالی</button>
+                            <button class="btn btn-outline-primary fw-medium">سودآوری</button>
+                            <button class="btn btn-outline-primary fw-medium">تعداد اقلام</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-borderless table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-muted fw-medium small">#</th>
+                                        <th class="text-muted fw-medium small">نام مشتری</th>
+                                        <th class="text-muted fw-medium small">مبلغ خرید</th>
+                                        <th class="text-muted fw-medium small">تعداد فاکتور</th>
+                                        <th class="text-muted fw-medium small">سود</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">۱</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=رضا+محمدی&background=random" class="rounded-circle me-2" width="32" height="32">
+                                                <span class="fw-medium">رضا محمدی</span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-primary">۸,۴۵۰,۰۰۰ تومان</td>
+                                        <td class="fw-medium">۱۴</td>
+                                        <td class="fw-bold text-success">۱,۲۳۰,۰۰۰ تومان</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">۲</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=علی+احمدی&background=random" class="rounded-circle me-2" width="32" height="32">
+                                                <span class="fw-medium">علی احمدی</span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-primary">۷,۲۱۰,۰۰۰ تومان</td>
+                                        <td class="fw-medium">۱۲</td>
+                                        <td class="fw-bold text-success">۹۸۵,۰۰۰ تومان</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">۳</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=مریم+کریمی&background=random" class="rounded-circle me-2" width="32" height="32">
+                                                <span class="fw-medium">مریم کریمی</span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-primary">۶,۵۴۰,۰۰۰ تومان</td>
+                                        <td class="fw-medium">۱۰</td>
+                                        <td class="fw-bold text-success">۸۷۰,۰۰۰ تومان</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">۴</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=حسین+رضایی&background=random" class="rounded-circle me-2" width="32" height="32">
+                                                <span class="fw-medium">حسین رضایی</span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-primary">۵,۹۸۰,۰۰۰ تومان</td>
+                                        <td class="fw-medium">۹</td>
+                                        <td class="fw-bold text-success">۷۶۵,۰۰۰ تومان</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">۵</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=زهرا+حسینی&background=random" class="rounded-circle me-2" width="32" height="32">
+                                                <span class="fw-medium">زهرا حسینی</span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-primary">۵,۴۳۰,۰۰۰ تومان</td>
+                                        <td class="fw-medium">۸</td>
+                                        <td class="fw-bold text-success">۶۵۰,۰۰۰ تومان</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- مشتریان غیرفعال بهبود یافته -->
+            <div class="col-lg-6">
+                <div class="dashboard-card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">مشتریان غیرفعال</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-medium" data-bs-toggle="dropdown">
+                                <i class="fas fa-calendar-alt me-1"></i> 30 روز
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: var(--border-radius);">
+                                <li><h6 class="dropdown-header fw-medium">بازه زمانی</h6></li>
+                                <li><a class="dropdown-item" href="#">7 روز</a></li>
+                                <li><a class="dropdown-item active" href="#">30 روز</a></li>
+                                <li><a class="dropdown-item" href="#">60 روز</a></li>
+                                <li><a class="dropdown-item" href="#">90 روز</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning alert-dismissible fade show mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">هشدار: ۱۲ مشتری غیرفعال</h6>
+                                    <p class="mb-0 small">مشتریانی که بیش از ۳۰ روز است خرید نکرده‌اند</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=سعید+رحیمی&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">سعید رحیمی</h6>
+                                            <small class="text-muted">آخرین خرید: ۳۵ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="inactive-badge">35 روز</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=نرگس+محمدی&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">نرگس محمدی</h6>
+                                            <small class="text-muted">آخرین خرید: ۴۲ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="inactive-badge">42 روز</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=محمد+کاویانی&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">محمد کاویانی</h6>
+                                            <small class="text-muted">آخرین خرید: ۵۷ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="inactive-badge">57 روز</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=فاطمه+زارع&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">فاطمه زارع</h6>
+                                            <small class="text-muted">آخرین خرید: ۶۳ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="inactive-badge">63 روز</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- برندهای بهبود یافته -->
+            <div class="col-lg-8">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">برندهای تحت پوشش</h5>
+                        <i class="fas fa-tags text-primary"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 col-6 mb-4">
+                                <div class="brand-card dashboard-card">
+                                    <img src="https://via.placeholder.com/150x50?text=Brand+1" class="brand-logo">
+                                    <div>
+                                        <h6 class="mb-2 fw-medium">برند طلایی</h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">فروش ماه</small>
+                                            <small class="fw-bold text-primary">۴۵٪</small>
+                                        </div>
+                                        <div class="progress brand-progress">
+                                            <div class="progress-bar bg-primary" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3 col-6 mb-4">
+                                <div class="brand-card dashboard-card">
+                                    <img src="https://via.placeholder.com/150x50?text=Brand+2" class="brand-logo">
+                                    <div>
+                                        <h6 class="mb-2 fw-medium">سینا</h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">فروش ماه</small>
+                                            <small class="fw-bold text-success">۳۲٪</small>
+                                        </div>
+                                        <div class="progress brand-progress">
+                                            <div class="progress-bar bg-success" style="width: 32%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3 col-6 mb-4">
+                                <div class="brand-card dashboard-card">
+                                    <img src="https://via.placeholder.com/150x50?text=Brand+3" class="brand-logo">
+                                    <div>
+                                        <h6 class="mb-2 fw-medium">دلپذیر</h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">فروش ماه</small>
+                                            <small class="fw-bold text-warning">۱۸٪</small>
+                                        </div>
+                                        <div class="progress brand-progress">
+                                            <div class="progress-bar bg-warning" style="width: 18%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3 col-6 mb-4">
+                                <div class="brand-card dashboard-card">
+                                    <img src="https://via.placeholder.com/150x50?text=Brand+4" class="brand-logo">
+                                    <div>
+                                        <h6 class="mb-2 fw-medium">به آذین</h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">فروش ماه</small>
+                                            <small class="fw-bold text-danger">۵٪</small>
+                                        </div>
+                                        <div class="progress brand-progress">
+                                            <div class="progress-bar bg-danger" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- مشتریان بدهکار بهبود یافته -->
+            <div class="col-lg-4">
+                <div class="dashboard-card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">مشتریان بدهکار</h5>
+                        <i class="fas fa-exclamation-triangle text-danger pulse"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=احمد+نوری&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">احمد نوری</h6>
+                                            <small class="text-muted">آخرین پرداخت: ۴۵ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">۱۲,۵۰۰,۰۰۰ تومان</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=رضا+اکبری&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">رضا اکبری</h6>
+                                            <small class="text-muted">آخرین پرداخت: ۳۲ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">۸,۷۰۰,۰۰۰ تومان</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 mb-2 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=مرتضی+قاسمی&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">مرتضی قاسمی</h6>
+                                            <small class="text-muted">آخرین پرداخت: ۲۸ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">۶,۳۰۰,۰۰۰ تومان</span>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="list-group-item list-group-item-action border-0 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://ui-avatars.com/api/?name=زهرا+امیری&background=random" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-1 fw-medium">زهرا امیری</h6>
+                                            <small class="text-muted">آخرین پرداخت: ۲۵ روز پیش</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-medium">۴,۹۰۰,۰۰۰ تومان</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- نقشه مشتریان بهبود یافته -->
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">توزیع جغرافیایی مشتریان</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle fw-medium" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i> وزیر بازرگانی
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: var(--border-radius);">
+                                <li><h6 class="dropdown-header fw-medium">وزیرها</h6></li>
+                                <li><a class="dropdown-item active" href="#">وزیر بازرگانی</a></li>
+                                <li><a class="dropdown-item" href="#">وزیر فروش شمال</a></li>
+                                <li><a class="dropdown-item" href="#">وزیر فروش شرق</a></li>
+                                <li><a class="dropdown-item" href="#">وزیر فروش غرب</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="visitorMap"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- اسکریپت‌ها -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // نمودار فروش
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1', '5', '10', '15', '20', '25', '30'],
+                datasets: [
+                    {
+                        label: 'فروش واقعی',
+                        data: [1200000, 2100000, 1750000, 2900000, 2400000, 3200000, 2800000],
+                        backgroundColor: 'rgba(67, 97, 238, 0.7)',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'هدف فروش',
+                        data: [1500000, 2500000, 2000000, 3000000, 2500000, 3500000, 3000000],
+                        borderColor: 'rgba(76, 201, 240, 1)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        type: 'line',
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(76, 201, 240, 1)',
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'پیش‌بینی',
+                        data: [1300000, 2200000, 1800000, 2700000, 2300000, 3100000, 2900000],
+                        borderColor: 'rgba(74, 214, 109, 1)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        type: 'line',
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(74, 214, 109, 1)',
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        rtl: true,
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 6,
+                            padding: 20,
+                            font: {
+                                family: 'Vazir',
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        rtl: true,
+                        bodyFont: {
+                            family: 'Vazir',
+                            size: 12
+                        },
+                        titleFont: {
+                            family: 'Vazir',
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw.toLocaleString() + ' تومان';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Vazir',
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return (value / 1000000) + 'M';
+                            },
+                            font: {
+                                family: 'Vazir',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // نقشه مشتریان
+        const map = L.map('visitorMap').setView([35.6892, 51.3890], 11);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // نقاط مشتریان (مثال)
+        const customers = [
+            {name: "رضا محمدی", lat: 35.7000, lng: 51.4000, amount: "۸,۴۵۰,۰۰۰ تومان"},
+            {name: "علی احمدی", lat: 35.7100, lng: 51.3800, amount: "۷,۲۱۰,۰۰۰ تومان"},
+            {name: "مریم کریمی", lat: 35.6950, lng: 51.4200, amount: "۶,۵۴۰,۰۰۰ تومان"},
+            {name: "حسین رضایی", lat: 35.7050, lng: 51.3700, amount: "۵,۹۸۰,۰۰۰ تومان"},
+            {name: "زهرا حسینی", lat: 35.6850, lng: 51.3900, amount: "۵,۴۳۰,۰۰۰ تومان"}
+        ];
+        
+        customers.forEach(customer => {
+            const marker = L.marker([customer.lat, customer.lng], {
+                icon: L.divIcon({
+                    className: 'customer-marker',
+                    html: `
+                        <div style="
+                            width: 16px;
+                            height: 16px;
+                            background-color: var(--primary-color);
+                            border-radius: 50%;
+                            border: 2px solid white;
+                            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.5);
+                            transition: all 0.3s ease;
+                        "></div>
+                    `,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="width: 200px; font-family: Vazir, Tahoma, sans-serif;">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="
+                            width: 36px;
+                            height: 36px;
+                            background-color: #f5f7fa;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 10px;
+                            flex-shrink: 0;
+                        ">
+                            <i class="fas fa-user text-primary"></i>
+                        </div>
+                        <h6 style="margin-bottom: 0; font-weight: 600;">${customer.name}</h6>
+                    </div>
+                    <div style="
+                        background-color: rgba(67, 97, 238, 0.05);
+                        border-radius: 8px;
+                        padding: 8px;
+                        margin-bottom: 8px;
+                    ">
+                        <div style="font-size: 0.8rem; color: #6c757d;">خرید ماه جاری:</div>
+                        <div style="font-weight: 700; color: var(--primary-color);">${customer.amount}</div>
+                    </div>
+                    <button style="
+                        width: 100%;
+                        background-color: var(--primary-color);
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px;
+                        font-family: Vazir;
+                        font-size: 0.85rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.backgroundColor='#3a56d8'" 
+                    onmouseout="this.style.backgroundColor='var(--primary-color)'">
+                        مشاهده جزئیات
+                    </button>
+                </div>
+            `);
+            
+            // اضافه کردن انیمیشن به مارکرها
+            marker.on('mouseover', function() {
+                this.setIcon(
+                    L.divIcon({
+                        className: 'pulse-marker',
+                        html: `
+                            <div style="
+                                width: 24px;
+                                height: 24px;
+                                background-color: var(--primary-color);
+                                border-radius: 50%;
+                                border: 3px solid white;
+                                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.5);
+                                transition: all 0.3s ease;
+                            "></div>
+                        `,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                );
+            });
+            
+            marker.on('mouseout', function() {
+                this.setIcon(
+                    L.divIcon({
+                        className: 'normal-marker',
+                        html: `
+                            <div style="
+                                width: 16px;
+                                height: 16px;
+                                background-color: var(--primary-color);
+                                border-radius: 50%;
+                                border: 2px solid white;
+                                box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.5);
+                                transition: all 0.3s ease;
+                            "></div>
+                        `,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    })
+                );
+            });
+        });
+
+        // تغییر تب‌های زمانی
+        document.querySelectorAll('.time-tabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // حذف کلاس active از همه تب‌ها
+                document.querySelectorAll('.time-tabs .nav-link').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // اضافه کردن کلاس active به تب انتخاب شده
+                this.classList.add('active');
+                
+                // تغییر داده‌های نمودار بر اساس انتخاب کاربر
+                const period = this.textContent;
+                let newData, newLabels;
+                
+                if (period === 'روزانه') {
+                    newLabels = ['1', '5', '10', '15', '20', '25', '30'];
+                    newData = [1200000, 2100000, 1750000, 2900000, 2400000, 3200000, 2800000];
+                } else if (period === 'هفتگی') {
+                    newLabels = ['هفته 1', 'هفته 2', 'هفته 3', 'هفته 4'];
+                    newData = [8500000, 10500000, 9200000, 11800000];
+                } else {
+                    newLabels = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'];
+                    newData = [28000000, 32000000, 35000000, 38000000, 41000000, 39000000];
+                }
+                
+                salesChart.data.labels = newLabels;
+                salesChart.data.datasets[0].data = newData;
+                salesChart.update();
+            });
+        });
+
+        // تغییر معیار بهترین مشتریان
+        document.querySelectorAll('.btn-group-sm .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-group-sm .btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // در اینجا می‌توانید داده‌های جدول را بر اساس انتخاب کاربر تغییر دهید
+                console.log('معیار انتخاب شده:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
