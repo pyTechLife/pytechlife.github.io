@@ -1,7 +1,7 @@
 {
   "name": "myapp",
   "short_name": "pytechlife",
-  "start_url": "/pytechlife/",
+  "start_url": "/pytechlife/panel/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#317EFB",
